@@ -3,88 +3,113 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Discord Invite Code Extractor</title>
+<title>Discord Invite Info</title>
 <style>
   body {
     font-family: Arial, sans-serif;
-    background: #2c2f33;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem;
-    height: 100vh;
-    justify-content: center;
-  }
-  input {
-    padding: 0.5rem;
-    font-size: 1rem;
-    border-radius: 6px;
-    border: none;
-    width: 320px;
-  }
-  button {
-    margin-left: 1rem;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    border-radius: 6px;
-    border: none;
-    background-color: #7289da;
+    background: #121212;
     color: white;
-    cursor: pointer;
+    padding: 2rem;
+    max-width: 600px;
+    margin: auto;
   }
-  button:hover {
-    background-color: #5b6eae;
-  }
-  .result {
-    margin-top: 2rem;
-    font-size: 1.2rem;
-  }
-  .input-row {
+  .server-info {
     display: flex;
-    align-items: center;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  img.icon {
+    width: 128px;
+    height: 128px;
+    border-radius: 16px;
+    background: #2c2f33;
+  }
+  .details {
+    flex-grow: 1;
+  }
+  .details strong {
+    color: white;
+  }
+  .details .green {
+    color: #57f287;
+  }
+  .details p {
+    margin: 5px 0;
   }
 </style>
 </head>
 <body>
-  <h1>Discord Invite Code Extractor</h1>
-  <div class="input-row">
-    <input type="text" id="inviteInput" placeholder="Paste Discord invite link or code" />
-    <button onclick="extractInvite()">Extract</button>
-  </div>
-  <div class="result" id="result"></div>
 
-  <script>
-    function extractInvite() {
-      const input = document.getElementById('inviteInput').value.trim();
-      const result = document.getElementById('result');
+<h1>Discord Invite Info</h1>
+<input type="text" id="inviteInput" placeholder="Enter Discord invite code" style="padding:8px; width: 250px;" />
+<button onclick="fetchInvite()">Fetch Info</button>
 
-      // Regex to match discord.gg invite URLs or just invite codes
-      const inviteRegex = /^(?:https?:\/\/)?(?:www\.)?discord\.gg\/([\w-]{2,})$/i;
-      const codeRegex = /^[\w-]{2,}$/;
+<div id="result" style="margin-top: 2rem;"></div>
 
-      let code = null;
+<script>
+  async function fetchInvite() {
+    const inviteCode = document.getElementById('inviteInput').value.trim();
+    const result = document.getElementById('result');
+    result.innerHTML = 'Loading...';
 
-      if (inviteRegex.test(input)) {
-        // It's a full invite URL
-        code = input.match(inviteRegex)[1];
-      } else if (codeRegex.test(input)) {
-        // It's just an invite code
-        code = input;
-      }
-
-      if (!code) {
-        result.style.color = 'red';
-        result.textContent = 'Invalid Discord invite link or code.';
-        return;
-      }
-
-      result.style.color = 'lightgreen';
-      result.textContent = `Invite Code: "${code}"`;
-
-      // Optional: you can show how to build an invite URL from the code:
-      // result.innerHTML += `<br>Invite URL: <a href="https://discord.gg/${code}" target="_blank">https://discord.gg/${code}</a>`;
+    if (!inviteCode) {
+      result.innerHTML = `<p style="color:red;">Please enter an invite code.</p>`;
+      return;
     }
-  </script>
+
+    try {
+      // Fetch invite info with member counts
+      const res = await fetch(`https://discord.com/api/invites/${inviteCode}?with_counts=true`);
+
+      if (!res.ok) throw new Error('Invite not found or invalid.');
+
+      const data = await res.json();
+      const guild = data.guild;
+
+      // Build icon URL
+      const iconUrl = guild.icon
+        ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=128`
+        : '';
+
+      // Banner URL (optional)
+      const bannerUrl = guild.banner
+        ? `https://cdn.discordapp.com/banners/${guild.id}/${guild.banner}.png?size=512`
+        : '';
+
+      // Format invite expiration (optional)
+      const expiresAt = data.expires_at
+        ? new Date(data.expires_at).toLocaleString()
+        : 'No expiration';
+
+      // Build HTML
+      result.innerHTML = `
+        <div class="server-info">
+          <img class="icon" src="${iconUrl}" alt="Server Icon" />
+          <div class="details">
+            <p><strong>Server name:</strong> <span class="green">${guild.name}</span></p>
+            <p><strong>Member count:</strong> <span class="green">${data.approximate_member_count}</span></p>
+            <p><strong>Online Users:</strong> <span class="green">${data.approximate_presence_count}</span></p>
+            <p><strong>Server description:</strong><br>${guild.description || 'No description'}</p>
+            <p><strong>Is NSFW:</strong> <span class="green">${guild.nsfw_level === 0 ? 'No' : 'Yes'}</span></p>
+            <p><strong>Invite expiration date:</strong> <span class="green">${expiresAt}</span></p>
+          </div>
+        </div>
+      `;
+
+      if (bannerUrl) {
+        const bannerImg = document.createElement('img');
+        bannerImg.src = bannerUrl;
+        bannerImg.alt = 'Server Banner';
+        bannerImg.style.width = '100%';
+        bannerImg.style.borderRadius = '12px';
+        bannerImg.style.marginTop = '1rem';
+        result.appendChild(bannerImg);
+      }
+    } catch (error) {
+      result.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+    }
+  }
+</script>
+
 </body>
 </html>
