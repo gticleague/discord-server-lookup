@@ -5,60 +5,166 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Discord Invite Info</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
   body {
-    font-family: Arial, sans-serif;
-    background: #121212;
-    color: white;
+    font-family: 'Inter', Arial, sans-serif;
+    background: #18191c;
+    color: #e4e6eb;
+    margin: 0;
     padding: 2rem;
-    max-width: 600px;
-    margin: auto;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
   }
+
+  .container {
+    background: #242526;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    max-width: 600px;
+    width: 100%;
+    padding: 2rem 2.5rem;
+  }
+
+  h1 {
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    font-size: 1.8rem;
+    text-align: center;
+    color: #7289da;
+  }
+
+  .input-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  input[type="text"] {
+    flex-grow: 1;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    background: #3a3b3c;
+    color: #e4e6eb;
+    transition: background 0.3s;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    background: #4a4b4c;
+  }
+
+  button {
+    background: #5865f2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0 1.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    box-shadow: 0 4px 10px rgba(88, 101, 242, 0.6);
+  }
+  button:hover {
+    background: #4752c4;
+  }
+  button:active {
+    background: #3a3f8c;
+  }
+
+  #result {
+    margin-top: 1rem;
+  }
+
   .server-info {
     display: flex;
-    gap: 20px;
+    gap: 24px;
     align-items: flex-start;
   }
+
   img.icon {
     width: 128px;
     height: 128px;
-    border-radius: 16px;
+    border-radius: 20px;
     background: #2c2f33;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    flex-shrink: 0;
   }
+
   .details {
     flex-grow: 1;
   }
-  .details strong {
-    color: white;
-  }
-  .details .green {
-    color: #57f287;
-  }
+
   .details p {
-    margin: 5px 0;
+    margin: 8px 0;
+    line-height: 1.4;
+  }
+
+  .details strong {
+    color: #b9bbbe;
+    font-weight: 600;
+  }
+
+  .green {
+    color: #43b581;
+    font-weight: 600;
+  }
+
+  .banner-img {
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 1.5rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    object-fit: cover;
+  }
+
+  /* Error message styling */
+  .error {
+    color: #f04747;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 480px) {
+    .server-info {
+      flex-direction: column;
+      align-items: center;
+    }
+    .details {
+      text-align: center;
+    }
+    input[type="text"], button {
+      font-size: 0.9rem;
+    }
   }
 </style>
 </head>
 <body>
-
-<h1>Discord Invite Info</h1>
-<input type="text" id="inviteInput" placeholder="Enter Discord invite code" style="padding:8px; width: 250px;" />
-<button onclick="fetchInvite()">Fetch Info</button>
-
-<div id="result" style="margin-top: 2rem;"></div>
+  <div class="container">
+    <h1>Discord Invite Info</h1>
+    <div class="input-group">
+      <input type="text" id="inviteInput" placeholder="Enter Discord invite code" autocomplete="off" />
+      <button onclick="fetchInvite()">Fetch Info</button>
+    </div>
+    <div id="result"></div>
+  </div>
 
 <script>
   async function fetchInvite() {
     const inviteCode = document.getElementById('inviteInput').value.trim();
     const result = document.getElementById('result');
-    result.innerHTML = 'Loading...';
+    result.innerHTML = '<p style="text-align:center; color:#999;">Loading...</p>';
 
     if (!inviteCode) {
-      result.innerHTML = `<p style="color:red;">Please enter an invite code.</p>`;
+      result.innerHTML = `<p class="error">Please enter an invite code.</p>`;
       return;
     }
 
     try {
-      // Fetch invite info with member counts
       const res = await fetch(`https://discord.com/api/invites/${inviteCode}?with_counts=true`);
 
       if (!res.ok) throw new Error('Invite not found or invalid.');
@@ -66,32 +172,28 @@
       const data = await res.json();
       const guild = data.guild;
 
-      // Build icon URL
       const iconUrl = guild.icon
         ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=128`
         : '';
 
-      // Banner URL (optional)
       const bannerUrl = guild.banner
         ? `https://cdn.discordapp.com/banners/${guild.id}/${guild.banner}.png?size=512`
         : '';
 
-      // Format invite expiration (optional)
       const expiresAt = data.expires_at
         ? new Date(data.expires_at).toLocaleString()
         : 'No expiration';
 
-      // Build HTML
       result.innerHTML = `
         <div class="server-info">
           <img class="icon" src="${iconUrl}" alt="Server Icon" />
           <div class="details">
             <p><strong>Server name:</strong> <span class="green">${guild.name}</span></p>
             <p><strong>Member count:</strong> <span class="green">${data.approximate_member_count}</span></p>
-            <p><strong>Online Users:</strong> <span class="green">${data.approximate_presence_count}</span></p>
-            <p><strong>Server description:</strong><br>${guild.description || 'No description'}</p>
-            <p><strong>Is NSFW:</strong> <span class="green">${guild.nsfw_level === 0 ? 'No' : 'Yes'}</span></p>
-            <p><strong>Invite expiration date:</strong> <span class="green">${expiresAt}</span></p>
+            <p><strong>Online users:</strong> <span class="green">${data.approximate_presence_count}</span></p>
+            <p><strong>Description:</strong><br>${guild.description || 'No description'}</p>
+            <p><strong>NSFW:</strong> <span class="green">${guild.nsfw_level === 0 ? 'No' : 'Yes'}</span></p>
+            <p><strong>Invite expiration:</strong> <span class="green">${expiresAt}</span></p>
           </div>
         </div>
       `;
@@ -100,16 +202,13 @@
         const bannerImg = document.createElement('img');
         bannerImg.src = bannerUrl;
         bannerImg.alt = 'Server Banner';
-        bannerImg.style.width = '100%';
-        bannerImg.style.borderRadius = '12px';
-        bannerImg.style.marginTop = '1rem';
+        bannerImg.className = 'banner-img';
         result.appendChild(bannerImg);
       }
     } catch (error) {
-      result.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+      result.innerHTML = `<p class="error">Error: ${error.message}</p>`;
     }
   }
 </script>
-
 </body>
 </html>
