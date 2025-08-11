@@ -45,19 +45,25 @@
 <body>
   <h1>Discord Server ID Lookup</h1>
   <div>
-    <input type="text" id="serverId" placeholder="Enter Discord Server ID" />
+    <input type="text" id="serverId" placeholder="Enter Discord Server ID or discord:ID" />
     <button onclick="lookupServer()">Lookup</button>
   </div>
   <div class="result" id="result"></div>
 
   <script>
+    function extractDiscordId(input) {
+      // Remove any "discord:" prefix (case-insensitive) and trim spaces
+      return input.trim().replace(/^discord:/i, '');
+    }
+
     function isValidDiscordId(id) {
-      // Discord IDs are usually 17-19 digits long snowflakes
+      // Discord snowflakes are 17 to 19 digits long
       return /^\d{17,19}$/.test(id);
     }
 
     function lookupServer() {
-      const id = document.getElementById('serverId').value.trim();
+      const input = document.getElementById('serverId').value;
+      const id = extractDiscordId(input);
       const result = document.getElementById('result');
 
       if (!isValidDiscordId(id)) {
@@ -66,7 +72,6 @@
         return;
       }
 
-      // Since no backend, we just confirm the ID is valid format
       result.style.color = 'lightgreen';
       result.textContent = `Server ID "${id}" looks valid!`;
 
