@@ -14,7 +14,7 @@
     margin: 0;
     padding: 2rem;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     min-height: 100vh;
   }
 
@@ -25,6 +25,10 @@
     max-width: 600px;
     width: 100%;
     padding: 2rem 2.5rem;
+    margin: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   h1 {
@@ -77,6 +81,7 @@
 
   #result {
     margin-top: 1rem;
+    flex-grow: 1;
   }
 
   .server-info {
@@ -128,6 +133,25 @@
     text-align: center;
   }
 
+  /* Footer styling */
+  footer.footer {
+    text-align: center;
+    padding: 1rem 0;
+    font-size: 0.9rem;
+    color: #7289da;
+    user-select: none;
+  }
+
+  footer.footer a {
+    color: #7289da;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  footer.footer a:hover,
+  footer.footer a:focus {
+    text-decoration: underline;
+  }
+
   /* Responsive adjustments */
   @media (max-width: 480px) {
     .server-info {
@@ -152,6 +176,12 @@
     </div>
     <div id="result"></div>
   </div>
+
+  <footer class="footer">
+    <a href="https://discord.com/users/YOUR_DISCORD_USER_ID" target="_blank" rel="noopener noreferrer" title="Made by katislunatic">
+      Made by katislunatic
+    </a>
+  </footer>
 
 <script>
   async function fetchInvite() {
