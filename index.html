@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Discord Server ID Lookup</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #2c2f33;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    height: 100vh;
+    justify-content: center;
+  }
+  input {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+    width: 300px;
+  }
+  button {
+    margin-left: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+    background-color: #7289da;
+    color: white;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #5b6eae;
+  }
+  .result {
+    margin-top: 2rem;
+    font-size: 1.2rem;
+  }
+</style>
+</head>
+<body>
+  <h1>Discord Server ID Lookup</h1>
+  <div>
+    <input type="text" id="serverId" placeholder="Enter Discord Server ID" />
+    <button onclick="lookupServer()">Lookup</button>
+  </div>
+  <div class="result" id="result"></div>
+
+  <script>
+    function isValidDiscordId(id) {
+      // Discord IDs are usually 17-19 digits long snowflakes
+      return /^\d{17,19}$/.test(id);
+    }
+
+    function lookupServer() {
+      const id = document.getElementById('serverId').value.trim();
+      const result = document.getElementById('result');
+
+      if (!isValidDiscordId(id)) {
+        result.textContent = 'Invalid Discord Server ID format.';
+        result.style.color = 'red';
+        return;
+      }
+
+      // Since no backend, we just confirm the ID is valid format
+      result.style.color = 'lightgreen';
+      result.textContent = `Server ID "${id}" looks valid!`;
+
+      // You can extend this to call a backend or Discord API for info with proper bot token
+    }
+  </script>
+</body>
+</html>
