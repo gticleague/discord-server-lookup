@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Discord Server ID Lookup</title>
+<title>Discord Invite Code Extractor</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -21,7 +21,7 @@
     font-size: 1rem;
     border-radius: 6px;
     border: none;
-    width: 300px;
+    width: 320px;
   }
   button {
     margin-left: 1rem;
@@ -40,42 +40,50 @@
     margin-top: 2rem;
     font-size: 1.2rem;
   }
+  .input-row {
+    display: flex;
+    align-items: center;
+  }
 </style>
 </head>
 <body>
-  <h1>Discord Server ID Lookup</h1>
-  <div>
-    <input type="text" id="serverId" placeholder="Enter Discord Server ID or discord:ID" />
-    <button onclick="lookupServer()">Lookup</button>
+  <h1>Discord Invite Code Extractor</h1>
+  <div class="input-row">
+    <input type="text" id="inviteInput" placeholder="Paste Discord invite link or code" />
+    <button onclick="extractInvite()">Extract</button>
   </div>
   <div class="result" id="result"></div>
 
   <script>
-    function extractDiscordId(input) {
-      // Remove any "discord:" prefix (case-insensitive) and trim spaces
-      return input.trim().replace(/^discord:/i, '');
-    }
-
-    function isValidDiscordId(id) {
-      // Discord snowflakes are 17 to 19 digits long
-      return /^\d{17,19}$/.test(id);
-    }
-
-    function lookupServer() {
-      const input = document.getElementById('serverId').value;
-      const id = extractDiscordId(input);
+    function extractInvite() {
+      const input = document.getElementById('inviteInput').value.trim();
       const result = document.getElementById('result');
 
-      if (!isValidDiscordId(id)) {
-        result.textContent = 'Invalid Discord Server ID format.';
+      // Regex to match discord.gg invite URLs or just invite codes
+      const inviteRegex = /^(?:https?:\/\/)?(?:www\.)?discord\.gg\/([\w-]{2,})$/i;
+      const codeRegex = /^[\w-]{2,}$/;
+
+      let code = null;
+
+      if (inviteRegex.test(input)) {
+        // It's a full invite URL
+        code = input.match(inviteRegex)[1];
+      } else if (codeRegex.test(input)) {
+        // It's just an invite code
+        code = input;
+      }
+
+      if (!code) {
         result.style.color = 'red';
+        result.textContent = 'Invalid Discord invite link or code.';
         return;
       }
 
       result.style.color = 'lightgreen';
-      result.textContent = `Server ID "${id}" looks valid!`;
+      result.textContent = `Invite Code: "${code}"`;
 
-      // You can extend this to call a backend or Discord API for info with proper bot token
+      // Optional: you can show how to build an invite URL from the code:
+      // result.innerHTML += `<br>Invite URL: <a href="https://discord.gg/${code}" target="_blank">https://discord.gg/${code}</a>`;
     }
   </script>
 </body>
