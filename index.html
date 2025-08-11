@@ -126,6 +126,12 @@
     object-fit: cover;
   }
 
+  hr {
+    border: none;
+    border-top: 1px solid #333;
+    margin: 1rem 0;
+  }
+
   /* Error message styling */
   .error {
     color: #f04747;
@@ -214,6 +220,31 @@
         ? new Date(data.expires_at).toLocaleString()
         : 'No expiration';
 
+      const creationDate = guild.created_at
+        ? new Date(guild.created_at).toLocaleDateString()
+        : 'Unknown';
+
+      const vanityUrl = data.code || (guild.vanity_url_code || null);
+
+      const verificationLevels = [
+        'None',
+        'Low',
+        'Medium',
+        'High',
+        'Very High'
+      ];
+      const verificationLevel = verificationLevels[guild.verification_level] || 'Unknown';
+
+      const features = guild.features && guild.features.length > 0
+        ? guild.features.join(', ')
+        : 'None';
+
+      const boostTier = guild.premium_tier > 0 ? `Tier ${guild.premium_tier}` : 'None';
+      const boostCount = guild.premium_subscription_count || 0;
+
+      const maxMembers = guild.max_members || 'Unlimited';
+      const maxPresences = guild.max_presences || 'Unlimited';
+
       result.innerHTML = `
         <div class="server-info">
           <img class="icon" src="${iconUrl}" alt="Server Icon" />
@@ -224,6 +255,15 @@
             <p><strong>Description:</strong><br>${guild.description || 'No description'}</p>
             <p><strong>NSFW:</strong> <span class="green">${guild.nsfw_level === 0 ? 'No' : 'Yes'}</span></p>
             <p><strong>Invite expiration:</strong> <span class="green">${expiresAt}</span></p>
+            <hr />
+            <p><strong>Server created on:</strong> <span class="green">${creationDate}</span></p>
+            ${vanityUrl ? `<p><strong>Vanity URL:</strong> <a href="https://discord.gg/${vanityUrl}" target="_blank" rel="noopener noreferrer" class="green">discord.gg/${vanityUrl}</a></p>` : ''}
+            <p><strong>Verification Level:</strong> <span class="green">${verificationLevel}</span></p>
+            <p><strong>Server Features:</strong> <span class="green">${features}</span></p>
+            <p><strong>Boost Tier:</strong> <span class="green">${boostTier}</span></p>
+            <p><strong>Boost Count:</strong> <span class="green">${boostCount}</span></p>
+            <p><strong>Max Members:</strong> <span class="green">${maxMembers}</span></p>
+            <p><strong>Max Presences:</strong> <span class="green">${maxPresences}</span></p>
           </div>
         </div>
       `;
